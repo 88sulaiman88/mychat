@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مساعدي الخاص</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #111827; color: #f9fafb; min-height: 100vh;
+    }
+    .app { max-width: 850px; margin: auto; min-height: 100vh; display: flex; flex-direction: column; padding: 18px; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:16px; }
+    h1 { font-size: 20px; margin:0; }
+    button { border:0; border-radius:10px; cursor:pointer; font:inherit; }
+    #clear { padding:8px 12px; background:#374151; color:#fff; }
+    #messages { flex:1; overflow-y:auto; padding:15px 0 130px; }
+    .msg { max-width:82%; padding:12px 14px; margin:10px 0; border-radius:16px; white-space:pre-wrap; line-height:1.65; }
+    .user { background:#2563eb; margin-right:auto; }
+    .assistant { background:#1f2937; border:1px solid #374151; margin-left:auto; }
+    .composer {
+      position:fixed; bottom:0; left:0; right:0; padding:14px;
+      background:linear-gradient(transparent, #111827 25%);
+    }
+    .composer-inner { max-width:814px; margin:auto; display:flex; gap:10px; align-items:flex-end; }
+    textarea {
+      flex:1; resize:none; min-height:52px; max-height:180px; padding:14px;
+      border-radius:14px; border:1px solid #4b5563; background:#1f2937; color:#fff; font:inherit;
+    }
+    #send { padding:14px 18px; background:#10a37f; color:white; }
+    #send:disabled { opacity:.55; cursor:not-allowed; }
+    .hint { color:#9ca3af; text-align:center; margin-top:30vh; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>مساعدي الخاص</h1>
+      <button id="clear">محادثة جديدة</button>
+    </header>
+    <section id="messages"><div class="hint">اكتب رسالتك بالأسفل</div></section>
+    <div class="composer">
+      <div class="composer-inner">
+        <textarea id="input" placeholder="اكتب رسالتك..." rows="1"></textarea>
+        <button id="send">إرسال</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("input");
+    const sendEl = document.getElementById("send");
+    const clearEl = document.getElementById("clear");
+
+    let messages = JSON.parse(localStorage.getItem("chat_messages") || "[]");
+    let password = sessionStorage.getItem("site_password") || "";
+
+    function ensurePassword() {
+      if (!password) {
+        password = prompt("أدخل كلمة مرور الموقع:") || "";
+        sessionStorage.setItem("site_password", password);
+      }
+    }
+
+    function render() {
+      messagesEl.innerHTML = "";
+      if (!messages.length) {
+        messagesEl.innerHTML = '<div class="hint">اكتب رسالتك بالأسفل</div>';
+        return;
+      }
+      for (const message of messages) {
+        const div = document.createElement("div");
+        div.className = `msg ${message.role}`;
+        div.textContent = message.content;
+        messagesEl.appendChild(div);
+      }
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function send() {
+      const text = inputEl.value.trim();
+      if (!text || sendEl.disabled) return;
+      ensurePassword();
+
+      messages.push({ role: "user", content: text });
+      inputEl.value = "";
+      render();
+      sendEl.disabled = true;
+      sendEl.textContent = "جاري...";
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages, password })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          if (response.status === 401) {
+            sessionStorage.removeItem("site_password");
+            password = "";
+          }
+          throw new Error(data.error || "تعذر إرسال الرسالة");
+        }
+        messages.push({ role: "assistant", content: data.reply });
+        localStorage.setItem("chat_messages", JSON.stringify(messages));
+      } catch (error) {
+        messages.push({ role: "assistant", content: "خطأ: " + error.message });
+      } finally {
+        render();
+        sendEl.disabled = false;
+        sendEl.textContent = "إرسال";
+        inputEl.focus();
+      }
+    }
+
+    sendEl.addEventListener("click", send);
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        send();
+      }
+    });
+    clearEl.addEventListener("click", () => {
+      messages = [];
+      localStorage.removeItem("chat_messages");
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
