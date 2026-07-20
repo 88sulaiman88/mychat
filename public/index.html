@@ -8,43 +8,191 @@
     :root { color-scheme: dark; }
     * { box-sizing: border-box; }
     body {
-      margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #111827; color: #f9fafb; min-height: 100vh;
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #111827;
+      color: #f9fafb;
     }
-    .app { max-width: 850px; margin: auto; min-height: 100vh; display: flex; flex-direction: column; padding: 18px; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:16px; }
-    h1 { font-size: 20px; margin:0; }
-    button { border:0; border-radius:10px; cursor:pointer; font:inherit; }
-    #clear { padding:8px 12px; background:#374151; color:#fff; }
-    #messages { flex:1; overflow-y:auto; padding:15px 0 130px; }
-    .msg { max-width:82%; padding:12px 14px; margin:10px 0; border-radius:16px; white-space:pre-wrap; line-height:1.65; }
-    .user { background:#2563eb; margin-right:auto; }
-    .assistant { background:#1f2937; border:1px solid #374151; margin-left:auto; }
+    .app {
+      max-width: 900px;
+      min-height: 100vh;
+      margin: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+    }
+    h1 { margin: 0; font-size: 21px; }
+    button {
+      border: 0;
+      border-radius: 11px;
+      cursor: pointer;
+      font: inherit;
+    }
+    #clear {
+      padding: 9px 13px;
+      background: #374151;
+      color: #fff;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0 165px;
+    }
+    .msg {
+      max-width: 84%;
+      padding: 12px 14px;
+      margin: 10px 0;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+    }
+    .user {
+      margin-right: auto;
+      background: #2563eb;
+    }
+    .assistant {
+      margin-left: auto;
+      background: #1f2937;
+      border: 1px solid #374151;
+    }
+    .hint {
+      color: #9ca3af;
+      text-align: center;
+      margin-top: 28vh;
+      line-height: 1.8;
+    }
     .composer {
-      position:fixed; bottom:0; left:0; right:0; padding:14px;
-      background:linear-gradient(transparent, #111827 25%);
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      padding: 14px;
+      background: linear-gradient(transparent, #111827 23%);
     }
-    .composer-inner { max-width:814px; margin:auto; display:flex; gap:10px; align-items:flex-end; }
+    .composer-box {
+      max-width: 864px;
+      margin: auto;
+      padding: 10px;
+      border: 1px solid #374151;
+      border-radius: 17px;
+      background: #1f2937;
+    }
+    .selected-files {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding-bottom: 8px;
+    }
+    .file-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 100%;
+      padding: 6px 9px;
+      border-radius: 9px;
+      background: #374151;
+      font-size: 13px;
+    }
+    .file-chip span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .remove-file {
+      padding: 0 5px;
+      background: transparent;
+      color: #fca5a5;
+      font-weight: bold;
+    }
+    .composer-row {
+      display: flex;
+      gap: 9px;
+      align-items: flex-end;
+    }
     textarea {
-      flex:1; resize:none; min-height:52px; max-height:180px; padding:14px;
-      border-radius:14px; border:1px solid #4b5563; background:#1f2937; color:#fff; font:inherit;
+      flex: 1;
+      min-height: 50px;
+      max-height: 175px;
+      padding: 12px;
+      resize: none;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: #fff;
+      font: inherit;
     }
-    #send { padding:14px 18px; background:#10a37f; color:white; }
-    #send:disabled { opacity:.55; cursor:not-allowed; }
-    .hint { color:#9ca3af; text-align:center; margin-top:30vh; }
+    #attach {
+      width: 45px;
+      height: 45px;
+      flex: 0 0 45px;
+      background: #374151;
+      color: #fff;
+      font-size: 20px;
+    }
+    #send {
+      min-width: 72px;
+      height: 45px;
+      padding: 0 15px;
+      background: #10a37f;
+      color: #fff;
+    }
+    #send:disabled, #attach:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+    .upload-note {
+      padding: 7px 4px 0;
+      color: #9ca3af;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
   <main class="app">
     <header>
-      <h1>مساعدي الخاص</h1>
+      <h1 id="siteName">مساعدي الخاص</h1>
       <button id="clear">محادثة جديدة</button>
     </header>
-    <section id="messages"><div class="hint">اكتب رسالتك بالأسفل</div></section>
+
+    <section id="messages">
+      <div class="hint">
+        اكتب رسالتك أو أرفق مستندًا لتحليله
+      </div>
+    </section>
+
     <div class="composer">
-      <div class="composer-inner">
-        <textarea id="input" placeholder="اكتب رسالتك..." rows="1"></textarea>
-        <button id="send">إرسال</button>
+      <div class="composer-box">
+        <div id="selectedFiles" class="selected-files"></div>
+
+        <div class="composer-row">
+          <input
+            id="fileInput"
+            type="file"
+            hidden
+            multiple
+            accept=".pdf,.doc,.docx,.rtf,.odt,.ppt,.pptx,.xls,.xlsx,.csv,.tsv,.txt,.md,.json,.html,.htm,.xml"
+          />
+          <button id="attach" title="إرفاق ملف">📎</button>
+          <textarea
+            id="input"
+            placeholder="اكتب طلبك، مثل: لخّص المستند وحدد المخاطر..."
+            rows="1"
+          ></textarea>
+          <button id="send">إرسال</button>
+        </div>
+
+        <div class="upload-note">
+          حتى 3 ملفات، وبحجم إجمالي أقصى 2.5 ميجابايت.
+        </div>
       </div>
     </div>
   </main>
@@ -54,9 +202,28 @@
     const inputEl = document.getElementById("input");
     const sendEl = document.getElementById("send");
     const clearEl = document.getElementById("clear");
+    const attachEl = document.getElementById("attach");
+    const fileInputEl = document.getElementById("fileInput");
+    const selectedFilesEl = document.getElementById("selectedFiles");
+    const siteNameEl = document.getElementById("siteName");
 
-    let messages = JSON.parse(localStorage.getItem("chat_messages") || "[]");
+    const MAX_FILES = 3;
+    const MAX_TOTAL_BYTES = 2_500_000;
+
+    let messages = JSON.parse(localStorage.getItem("chat_messages_v2") || "[]");
     let password = sessionStorage.getItem("site_password") || "";
+    let selectedFiles = [];
+
+    async function loadConfig() {
+      try {
+        const response = await fetch("/api/config");
+        if (!response.ok) return;
+        const config = await response.json();
+        const name = config.siteName || "مساعدي الخاص";
+        siteNameEl.textContent = name;
+        document.title = name;
+      } catch (_) {}
+    }
 
     function ensurePassword() {
       if (!password) {
@@ -65,72 +232,201 @@
       }
     }
 
-    function render() {
+    function renderMessages() {
       messagesEl.innerHTML = "";
+
       if (!messages.length) {
-        messagesEl.innerHTML = '<div class="hint">اكتب رسالتك بالأسفل</div>';
+        messagesEl.innerHTML =
+          '<div class="hint">اكتب رسالتك أو أرفق مستندًا لتحليله</div>';
         return;
       }
+
       for (const message of messages) {
         const div = document.createElement("div");
         div.className = `msg ${message.role}`;
-        div.textContent = message.content;
+
+        let text = message.content;
+        if (message.attachments?.length) {
+          text += `\n\n📎 ${message.attachments.join("، ")}`;
+        }
+
+        div.textContent = text;
         messagesEl.appendChild(div);
       }
+
       messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function renderSelectedFiles() {
+      selectedFilesEl.innerHTML = "";
+
+      selectedFiles.forEach((file, index) => {
+        const chip = document.createElement("div");
+        chip.className = "file-chip";
+
+        const name = document.createElement("span");
+        name.textContent = `📄 ${file.name}`;
+
+        const remove = document.createElement("button");
+        remove.className = "remove-file";
+        remove.textContent = "×";
+        remove.title = "إزالة";
+        remove.addEventListener("click", () => {
+          selectedFiles.splice(index, 1);
+          renderSelectedFiles();
+        });
+
+        chip.append(name, remove);
+        selectedFilesEl.appendChild(chip);
+      });
+    }
+
+    function totalSelectedBytes(files) {
+      return files.reduce((total, file) => total + file.size, 0);
+    }
+
+    function handleFiles(files) {
+      const incoming = Array.from(files);
+      const combined = [...selectedFiles, ...incoming];
+
+      if (combined.length > MAX_FILES) {
+        alert(`يمكن إرفاق ${MAX_FILES} ملفات كحد أقصى.`);
+        fileInputEl.value = "";
+        return;
+      }
+
+      if (totalSelectedBytes(combined) > MAX_TOTAL_BYTES) {
+        alert("الحجم الإجمالي للملفات يجب ألا يتجاوز 2.5 ميجابايت.");
+        fileInputEl.value = "";
+        return;
+      }
+
+      selectedFiles = combined;
+      fileInputEl.value = "";
+      renderSelectedFiles();
+    }
+
+    function fileToPayload(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = String(reader.result || "");
+          const base64 = result.includes(",") ? result.split(",")[1] : result;
+
+          resolve({
+            name: file.name,
+            type: file.type,
+            data: base64
+          });
+        };
+
+        reader.onerror = () => reject(new Error(`تعذر قراءة الملف: ${file.name}`));
+        reader.readAsDataURL(file);
+      });
     }
 
     async function send() {
       const text = inputEl.value.trim();
-      if (!text || sendEl.disabled) return;
+
+      if ((!text && !selectedFiles.length) || sendEl.disabled) return;
+
       ensurePassword();
 
-      messages.push({ role: "user", content: text });
+      const attachmentNames = selectedFiles.map((file) => file.name);
+      const requestText =
+        text ||
+        "حلّل الملفات المرفقة، ولخّص أهم النقاط، ونبّهني إلى أي ملاحظات أو مخاطر مهمة.";
+
+      const userMessage = {
+        role: "user",
+        content: requestText,
+        attachments: attachmentNames
+      };
+
+      messages.push(userMessage);
       inputEl.value = "";
-      render();
+      renderMessages();
+
       sendEl.disabled = true;
+      attachEl.disabled = true;
       sendEl.textContent = "جاري...";
 
       try {
+        const filePayloads = await Promise.all(
+          selectedFiles.map(fileToPayload)
+        );
+
+        const apiMessages = messages.map((message) => ({
+          role: message.role,
+          content: message.content
+        }));
+
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages, password })
+          body: JSON.stringify({
+            messages: apiMessages,
+            password,
+            files: filePayloads
+          })
         });
+
         const data = await response.json();
+
         if (!response.ok) {
           if (response.status === 401) {
             sessionStorage.removeItem("site_password");
             password = "";
           }
+
           throw new Error(data.error || "تعذر إرسال الرسالة");
         }
-        messages.push({ role: "assistant", content: data.reply });
-        localStorage.setItem("chat_messages", JSON.stringify(messages));
+
+        messages.push({
+          role: "assistant",
+          content: data.reply
+        });
+
+        selectedFiles = [];
+        renderSelectedFiles();
+        localStorage.setItem("chat_messages_v2", JSON.stringify(messages));
       } catch (error) {
-        messages.push({ role: "assistant", content: "خطأ: " + error.message });
+        messages.push({
+          role: "assistant",
+          content: "خطأ: " + error.message
+        });
       } finally {
-        render();
+        renderMessages();
         sendEl.disabled = false;
+        attachEl.disabled = false;
         sendEl.textContent = "إرسال";
         inputEl.focus();
       }
     }
 
+    attachEl.addEventListener("click", () => fileInputEl.click());
+    fileInputEl.addEventListener("change", () => handleFiles(fileInputEl.files));
     sendEl.addEventListener("click", send);
+
     inputEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         send();
       }
     });
+
     clearEl.addEventListener("click", () => {
       messages = [];
-      localStorage.removeItem("chat_messages");
-      render();
+      selectedFiles = [];
+      localStorage.removeItem("chat_messages_v2");
+      renderSelectedFiles();
+      renderMessages();
     });
 
-    render();
+    loadConfig();
+    renderMessages();
+    renderSelectedFiles();
   </script>
 </body>
 </html>
