@@ -8,4 +8,4 @@
 - `SITE_PASSWORD`
 - `OPENAI_MODEL` (اختياري، الافتراضي `gpt-5-mini`)
 
-لا تضع مفتاح API داخل HTML أو JavaScript في مجلد public.
+لا تضع مفتاح API داخل HTML أو JavaScript في مجلدd public.
